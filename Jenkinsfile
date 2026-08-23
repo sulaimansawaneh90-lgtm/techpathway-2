@@ -24,13 +24,12 @@ pipeline {
             }
         }
 
-        stage('Test Frontend Build') {
-            steps {
-                echo 'Testing frontend production build...'
-                sh 'docker run --rm techpathway-frontend npm run build'
-            }
-        }
-
+       stage('Test Frontend Build') {
+    steps {
+        echo 'Testing frontend production build...'
+        sh 'docker run --rm techpathway-frontend node ./node_modules/react-scripts/bin/react-scripts.js build'
+    }
+}
         stage('Verify Docker Images') {
             steps {
                 echo 'Verifying Docker images...'
