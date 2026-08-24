@@ -1,59 +1,184 @@
-# Overview
-This repository contains a React frontend, and an Express backend that the frontend connects to.
+# Tech Challenge 2 – Full-Stack Deployment with Jenkins, Docker & AWS
 
-# Objective
-Deploy the frontend and backend to somewhere publicly accessible over the internet. The AWS Free Tier should be more than sufficient to run this project, but you may use any platform and tooling you'd like for your solution.
+## Overview
 
-Fork this repo as a base. You may change any code in this repository to suit the infrastructure you build in this code challenge.
+This project deploys a React frontend and Express backend application to an AWS EC2 server using Docker and Jenkins.
 
-# Submission
-1. A github repo that has been forked from this repo with all your code.
-2. Modify this README file with instructions for:
-* Any tools needed to deploy your infrastructure
-* All the steps needed to repeat your deployment process
-* URLs to the your deployed frontend.
+Terraform manages the AWS infrastructure, while Jenkins provides the CI/CD pipeline that builds, tests, and deploys the application.
 
-# Evaluation
-You will be evaluated on the ease to replicate your infrastructure. This is a combination of quality of the instructions, as well as any scripts to automate the overall setup process.
+## Architecture
 
-# Setup your environment
-Install nodejs. Binaries and installers can be found on nodejs.org.
-https://nodejs.org/en/download/
+Developer
+    |
+    v
+GitHub Repository
+    |
+    v
+Jenkins CI/CD
+    |
+    +-------------------+
+    |                   |
+    v                   v
+Terraform             Docker
+    |                   |
+    v                   v
+AWS EC2          Docker Containers
+                       |
+              +--------+--------+
+              |                 |
+              v                 v
+        React Frontend    Express Backend
+          Port 3000          Port 5000
 
-For macOS or Linux, Nodejs can usually be found in your preferred package manager.
-https://nodejs.org/en/download/package-manager/
+## Technologies
 
-Depending on the Linux distribution, the Node Package Manager `npm` may need to be installed separately.
+- AWS EC2
+- Terraform
+- Amazon S3
+- Jenkins
+- Docker
+- GitHub
+- Node.js
+- React
+- Express
 
-# Running the project
-The backend and the frontend will need to run on separate processes. The backend should be started first.
-```
-cd backend
-npm ci
-npm start
-```
-The backend should response to a GET request on `localhost:8080`.
+## AWS Infrastructure
 
-With the backend started, the frontend can be started.
-```
-cd frontend
-npm ci
-npm start
-```
-The frontend can be accessed at `localhost:3000`. If the frontend successfully connects to the backend, a message saying "SUCCESS" followed by a guid should be displayed on the screen.  If the connection failed, an error message will be displayed on the screen.
+| Resource | Details |
+|---|---|
+| EC2 Instance | i-0a90a4c2f7102f835 |
+| Instance Type | t3.micro |
+| Region | us-east-1 |
+| Jenkins Port | 8080 |
+| Frontend Port | 3000 |
+| Backend Port | 5000 |
+| Terraform State | Amazon S3 |
+| State Bucket | techpathway-terraform-state-285851439149 |
 
-# Configuration
-The frontend has a configuration file at `frontend/src/config.js` that defines the URL to call the backend. This URL is used on `frontend/src/App.js#12`, where the front end will make the GET call during the initial load of the page.
+Terraform state is stored remotely in Amazon S3 with versioning and server-side encryption enabled.
 
-The backend has a configuration file at `backend/config.js` that defines the host that the frontend will be calling from. This URL is used in the `Access-Control-Allow-Origin` CORS header, read in `backend/index.js#14`
+## Project Structure
 
-# Optional Extras
-The core requirement for this challenge is to get the provided application up and running for consumption over the public internet. That being said, there are some opportunities in this code challenge to demonstrate your skill sets that are above and beyond the core requirement.
+.
+├── backend/
+├── frontend/
+├── terraform/
+├── Jenkinsfile
+└── README.md
 
-A few examples of extras for this coding challenge:
-1. Dockerizing the application
-2. Scripts to set up the infrastructure
-3. Providing a pipeline for the application deployment
-4. Running the application in a serverless environment
+## Terraform Deployment
 
-This is not an exhaustive list of extra features that could be added to this code challenge. At the end of the day, this section is for you to demonstrate any skills you want to show that’s not captured in the core requirement.
+Initialize Terraform:
+
+    terraform -chdir=terraform init
+
+Validate the configuration:
+
+    terraform -chdir=terraform validate
+
+Review the infrastructure plan:
+
+    terraform -chdir=terraform plan
+
+The expected result is:
+
+    No changes. Your infrastructure matches the configuration.
+
+## Jenkins CI/CD Pipeline
+
+The Jenkins pipeline is defined in Jenkinsfile.
+
+Pipeline stages:
+
+1. Checkout source code
+2. Terraform initialization
+3. Terraform validation
+4. Terraform plan
+5. Build backend Docker image
+6. Build frontend Docker image
+7. Test frontend production build
+8. Verify Docker images
+9. Deploy application containers
+
+Jenkins:
+
+http://18.210.6.207:8080
+
+## Docker Deployment
+
+Build the backend:
+
+    docker build -t techpathway-backend ./backend
+
+Build the frontend:
+
+    docker build -t techpathway-frontend ./frontend
+
+Run the backend:
+
+    docker run -d --name techpathway-backend -p 5000:5000 techpathway-backend
+
+Run the frontend:
+
+    docker run -d --name techpathway-frontend -p 3000:3000 techpathway-frontend
+
+Check containers:
+
+    docker ps
+
+## Application URLs
+
+Frontend:
+
+http://18.210.6.207:3000
+
+Backend:
+
+http://18.210.6.207:5000
+
+Jenkins:
+
+http://18.210.6.207:8080
+
+## Verification
+
+Backend:
+
+    curl http://localhost:5000
+
+Frontend:
+
+    curl -I http://localhost:3000
+
+Docker:
+
+    docker ps
+
+Jenkins:
+
+    sudo systemctl status jenkins
+
+Terraform:
+
+    terraform -chdir=terraform plan
+
+## CI/CD Result
+
+A successful Jenkins pipeline finishes with:
+
+    CI/CD pipeline completed successfully!
+    Finished: SUCCESS
+
+## Additional Features
+
+This project implements:
+
+- Dockerized frontend and backend
+- Jenkins CI/CD
+- Terraform infrastructure as code
+- Remote Terraform state using Amazon S3
+- S3 state versioning
+- S3 server-side encryption
+- Automated Terraform validation and planning
+- Automated Docker image builds
+- Automated application deployment
