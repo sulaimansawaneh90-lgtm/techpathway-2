@@ -1,2 +1,2 @@
-export const API_URL = 'http://localhost:8080/'
+export const API_URL = 'http://18.210.6.207:5000/'
 export default API_URL

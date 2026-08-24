@@ -24,27 +24,54 @@ pipeline {
             }
         }
 
-       stage('Test Frontend Build') {
-    steps {
-        echo 'Testing frontend production build...'
-        sh 'docker run --rm techpathway-frontend node ./node_modules/react-scripts/bin/react-scripts.js build'
-    }
-}
+        stage('Test Frontend Build') {
+            steps {
+                echo 'Testing frontend production build...'
+                sh 'docker run --rm techpathway-frontend node ./node_modules/react-scripts/bin/react-scripts.js build'
+            }
+        }
+
         stage('Verify Docker Images') {
             steps {
                 echo 'Verifying Docker images...'
                 sh 'docker images | grep techpathway'
             }
         }
+
+        stage('Deploy Application') {
+            steps {
+                echo 'Deploying application...'
+
+                sh '''
+                    docker stop techpathway-backend || true
+                    docker rm techpathway-backend || true
+
+                    docker run -d \
+                        --name techpathway-backend \
+                        -p 5000:5000 \
+                        techpathway-backend
+
+                    docker stop techpathway-frontend || true
+                    docker rm techpathway-frontend || true
+
+                    docker run -d \
+                        --name techpathway-frontend \
+                        -p 3000:3000 \
+                        techpathway-frontend
+
+                    docker ps
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo 'CI pipeline completed successfully!'
+            echo 'CI/CD pipeline completed successfully!'
         }
 
         failure {
-            echo 'CI pipeline failed. Check the Jenkins console output.'
+            echo 'CI/CD pipeline failed. Check the Jenkins console output.'
         }
     }
 }
