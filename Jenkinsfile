@@ -10,6 +10,27 @@ pipeline {
             }
         }
 
+        stage('Terraform Init') {
+            steps {
+                echo 'Initializing Terraform...'
+                sh 'terraform -chdir=terraform init'
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                echo 'Validating Terraform configuration...'
+                sh 'terraform -chdir=terraform validate'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                echo 'Planning Terraform changes...'
+                sh 'terraform -chdir=terraform plan'
+            }
+        }
+
         stage('Build Backend Docker Image') {
             steps {
                 echo 'Building backend Docker image...'
